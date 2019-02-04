@@ -5,7 +5,7 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost")
 
 channel = connection.channel()
 
-channel.queue_declare("hello")
+channel.queue_declare("task_queue", durable=True)
 
 
 def callback(ch, method, properties, body):
@@ -15,7 +15,8 @@ def callback(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-channel.basic_consume(callback, queue="hello")
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(callback, queue="task_queue")
 
 print("[x] Waiting for messages")
 
